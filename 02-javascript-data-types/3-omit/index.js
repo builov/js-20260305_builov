@@ -5,10 +5,12 @@
  * @returns {object} - returns the new object
  */
 export const omit = (obj, ...fields) => {
-  const newObj = {...obj};
+  const newObj = {};
 
-  for (const [key, value] of Object.entries(fields)) {
-    delete newObj[value];
+  for (const key of Object.keys(obj)) {
+    if (!fields.includes(key)) {
+      newObj[key] = obj[key];
+    }
   }
 
   return newObj;
