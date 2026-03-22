@@ -15,7 +15,7 @@ export default class ColumnChart {
   private link: string | null | undefined;
   private formatHeading: any;
 
-  public element: object | null = null;
+  public element: HTMLElement | null;
   private chartHeight: number = 50;
 
   update(data: number[]) {
@@ -32,11 +32,11 @@ export default class ColumnChart {
 
   // @ts-ignore
   constructor({
-                data,
-                label,
-                value,
-                link,
-                formatHeading
+                data = [],
+                label = '',
+                value = 0,
+                link = '',
+                formatHeading = (val: number) => val
               }: Options = {}) {
 
     this.data = data;
@@ -46,7 +46,6 @@ export default class ColumnChart {
     this.formatHeading = formatHeading;
 
     this.setElement();
-    // console.log(link);
   }
 
   private setElement(): void {
@@ -55,36 +54,34 @@ export default class ColumnChart {
       maxValue = (item > maxValue) ? item : maxValue;
     });
 
-    const scale: number = 50 / maxValue;
-
-    let html = `<div class="dashboard__chart_${this.label}">
-                          <div class="column-chart" style="--chart-height: 50">
-                            <div class="column-chart__title">
-                              Total ${this.label}`;
-
-    if (this.link !== undefined) {
-      html += `               <a href="${this.link}" class="column-chart__link">View all</a>`;
-    }
-
-    html += `               </div>
-                            <div class="column-chart__container">
-                              <div data-element="header" class="column-chart__header">${this.value}</div>
-                              <div data-element="body" class="column-chart__chart">`;
-
-    this.data.forEach(function(item: number, index: number, array: number[]) {
+    const scale: number = this.chartHeight / maxValue;
+    const linkElement = (this.link !== '') ? `<a href="${this.link}" class="column-chart__link">View all</a>` : '';
+    const data = this.data.map(function(item: number) {
       const value: number = Math.floor(item * scale);
       const tooltip: string = (item / maxValue * 100).toFixed(0) + '%';
 
-      html += `                 <div style="--value: ${value}" data-tooltip="${tooltip}"></div>`;
-    });
+      return `<div style="--value: ${value}" data-tooltip="${tooltip}"></div>`;
+    }).join('');
+    const val = this.formatHeading(this.value);
+    const extraClass = (this.data.length === 0) ? 'column-chart_loading' : '';
 
-    html += `                 </div>
+    let html = `<div class="dashboard__chart_${this.label} ${extraClass}">
+                          <div class="column-chart" style="--chart-height: ${this.chartHeight}">
+                            <div class="column-chart__title">
+                              Total ${this.label}
+                              ${linkElement}
+                            </div>
+                            <div class="column-chart__container">
+                              <div data-element="header" class="column-chart__header">${val}</div>
+                              <div data-element="body" class="column-chart__chart">
+                                ${data}
+                              </div>
                             </div>
                           </div>
                         </div>`;
 
-    const tmpElement = document.createElement('div');
-    tmpElement.innerHTML = html;
-    this.element = tmpElement.firstElementChild;
+    const tmpElement = document.createElement('template');
+    tmpElement.innerHTML = html.trim();
+    this.element = <HTMLElement>tmpElement.firstElementChild;
   }
 }
