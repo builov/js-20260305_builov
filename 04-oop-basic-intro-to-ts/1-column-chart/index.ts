@@ -15,7 +15,7 @@ export default class ColumnChart {
   private link: string | null | undefined;
   private formatHeading: any;
 
-  public element: HTMLElement | null;
+  public element: HTMLElement | null | undefined;
   private chartHeight: number = 50;
   private extraClass: string = '';
 
@@ -49,14 +49,15 @@ export default class ColumnChart {
   }
 
   private setElement(): void {
-    const maxValue: number = Math.max(...this.data);
-    const scale: number = (maxValue !== 0) ? this.chartHeight / maxValue : 0;
-
     const linkElement = (this.link !== '') ? `<a href="${this.link}" class="column-chart__link">View all</a>` : '';
 
     let dataElement = null;
-    if (this.data) {
-      dataElement = this.data.map(function (item: number) {
+
+    if (this.data && this.data?.length > 0) {
+      const maxValue: number = Math.max(...this.data);
+      const scale: number = (maxValue !== 0) ? this.chartHeight / maxValue : 0;
+
+      dataElement = this.data.map((item: number) => {
         const value: number = Math.floor(item * scale);
         const tooltip: string = (item / maxValue * 100).toFixed(0) + '%';
 
@@ -65,9 +66,8 @@ export default class ColumnChart {
     }
 
     const val = this.formatHeading(this.value);
-    if (this.data) {
-      this.extraClass = (this.data.length === 0) ? 'column-chart_loading' : '';
-    }
+
+    this.extraClass = !this.data?.length ? 'column-chart_loading' : '';
 
     const html = `<div class="dashboard__chart_${this.label} ${(this.extraClass)}">
                           <div class="column-chart" style="--chart-height: ${this.chartHeight}">
