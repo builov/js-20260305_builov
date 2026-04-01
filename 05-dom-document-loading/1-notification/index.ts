@@ -11,11 +11,11 @@ export default class NotificationMessage {
   public message: string;
   static activeNotification: NotificationMessage | undefined;
   private timer: number = 0;
-  private element: HTMLElement;
+  private element: HTMLElement | undefined;
 
   constructor(message: string, {duration, type}: Options) {
     if (NotificationMessage.activeNotification) {
-      this.destroy();
+      NotificationMessage.activeNotification?.destroy();
     }
 
     this.duration = (duration) ? duration : 2000;
@@ -28,7 +28,7 @@ export default class NotificationMessage {
   public show(target?: HTMLElement): void {
     const containerElement = (target) ? target : document.body;
 
-    const html = `<div class="notification ${this.type}" style="--value:${this.duration}ms">
+    const html = `<div class="notification ${this.type}" style="--value:${this.duration / 1000}s">
                         <div class="timer"></div>
                         <div class="inner-wrapper">
                           <div class="notification-header">${this.type}</div>
