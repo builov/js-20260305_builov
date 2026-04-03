@@ -1,8 +1,8 @@
 import { createElement } from "../../shared/utils/create-element";
 
 interface Options {
-  duration: number,
-  type: 'success' | 'error'
+  duration?: number,
+  type?: 'success' | 'error'
 }
 
 export default class NotificationMessage {
@@ -11,15 +11,15 @@ export default class NotificationMessage {
   public message: string;
   static activeNotification: NotificationMessage | undefined;
   private timer: number = 0;
-  private element: HTMLElement | undefined;
+  public element: HTMLElement | undefined;
 
-  constructor(message: string, {duration, type}: Options) {
+  constructor(message: string, { duration = 2000, type = 'success' }: Options = {}) {
     if (NotificationMessage.activeNotification) {
       NotificationMessage.activeNotification?.destroy();
     }
 
-    this.duration = (duration) ? duration : 2000;
-    this.type = (type) ? type : 'success';
+    this.duration = duration;
+    this.type = type;
     this.message = message;
 
     NotificationMessage.activeNotification = this;
@@ -55,6 +55,8 @@ export default class NotificationMessage {
 
   public destroy(): void {
     clearTimeout(this.timer);
+
+    NotificationMessage.activeNotification = undefined;
 
     const element = <HTMLElement>document.querySelector('.notification');
 
