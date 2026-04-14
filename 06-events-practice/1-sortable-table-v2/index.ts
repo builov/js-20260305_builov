@@ -43,22 +43,29 @@ export default class SortableTable {
     this.isSortLocally = isSortLocally;
     this.tableElement = this.buildTableElement();
 
-    this.tableElement.querySelector('[data-element="header"]').addEventListener('click', e => {
-        const element =  e.target as HTMLElement;
-        const dataset = element.closest(".sortable-table__cell").dataset;
+    this.tableElement.querySelector('[data-element="header"]')?.addEventListener('click', e => {
+      const element = e.target as HTMLElement;
+      const dataset = (element.closest(".sortable-table__cell") as HTMLElement)?.dataset;
 
-        const id = dataset.id
-        const order = (dataset.order === 'desc') ? 'asc' : 'desc';
+      const column = this.headersConfig.find(item => item.id === dataset?.id);
+      if (!column?.sortable) {
+        return;
+      }
 
-        // console.log(id, order);
+      const id = dataset?.id;
+      if (!id) {
+        return;
+      }
 
-        this.sorted = {
-          id: id,
-          order: order
-        }
+      const order = (dataset.order === 'desc') ? 'asc' : 'desc';
 
-        this.sort();
-      });
+      this.sorted = {
+        id: id,
+        order: order
+      }
+
+      this.sort();
+    });
   }
 
 
@@ -135,8 +142,8 @@ export default class SortableTable {
 
     if (this.data) {
       this.data.sort((a, b) => {
-        const aVal = a[this.sorted?.id];
-        let bVal = b[this.sorted?.id];
+        const aVal = a[this.sorted!.id];
+        let bVal = b[this.sorted!.id];
 
         if (aVal === undefined || aVal === null) {
           return 1;
@@ -174,11 +181,8 @@ export default class SortableTable {
     // console.log(header);
 
     if ("querySelector" in this.tableElement) {
-      this.tableElement.querySelector(".sortable-table__header").innerHTML = header;
-    }
-
-    if ("querySelector" in this.tableElement) {
-      this.tableElement.querySelector(".sortable-table__body").innerHTML = body;
+      this.tableElement.querySelector(".sortable-table__header")!.innerHTML = header;
+      this.tableElement.querySelector(".sortable-table__body")!.innerHTML = body;
     }
 
   }
